@@ -1,0 +1,47 @@
+import * as z from "zod";
+
+export const formSchema = z.object({
+  fullName: z.string().min(1, "Full name is required"),
+  email: z.string().email("Invalid email address"),
+  dateOfBirth: z.string().min(1, "Date of Birth is required"),
+  gender: z.enum(["MALE", "FEMALE", "OTHER"]),
+  nationality: z.string().min(1, "Nationality is required"),
+  currentLocation: z.object({
+    city: z.string().min(1, "City is required"),
+    state: z.string().min(1, "State is required"),
+    country: z.string().min(1, "Country is required"),
+  }),
+  permanentAddress: z.string().min(1, "Permanent Address is required"),
+  pincode: z.string().min(1, "Pincode is required"),
+  highestEducation: z.string().min(1, "Highest Education is required"),
+  specializedDegree: z.string().optional(),
+  universityName: z.string().optional(),
+  yearOfGraduation: z.number().optional(),
+  workExperience: z.number().min(0),
+  currentJobRole: z.string(),
+  sector: z.string(),
+  salary: z.string(),
+  maritalStatus: z.enum(["SINGLE", "MARRIED"]),
+  height: z.number().min(0),
+  weight: z.number().min(0),
+  religion: z.string(),
+  motherTongue: z.string(),
+  instagram: z.string().optional(),
+  facebook: z.string().optional(),
+  linkedin: z.string().optional(),
+  twitter: z.string().optional(),
+  areasOfInterest: z.array(z.string()).optional(),
+  achievements: z.array(z.string()).optional(),
+  languages: z.array(z.string()).optional(),
+  hobbies: z.array(z.string()).optional(),
+  skills: z.array(z.string()).optional(),
+  caste: z.string(),
+  zodiacSign: z.string(),
+  eatingHabits: z.enum(["VEGETARIAN", "NON-VEGETARIAN"]),
+  drinkingHabits: z.enum(["NEVER", "REGULAR", "OCCASIONALLY"]),
+  smokingHabits: z.enum(["NEVER", "REGULAR", "OCCASIONALLY"]),
+  interestedInMatrimonial: z.boolean(),
+});
+
+// TypeScript type for the form
+export type FormValues = z.infer<typeof formSchema>;
