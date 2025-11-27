@@ -1,95 +1,110 @@
-import React, { useState, useRef, ReactNode, useEffect } from "react";
+import React, { useState } from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
-  Animated,
   LayoutAnimation,
   Platform,
   UIManager,
-} from "react-native";
-import { Feather } from "@expo/vector-icons";
+} from 'react-native';
 
-// Enable LayoutAnimation on Android
-if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental) {
+// Enable animation on Android
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-interface AccordionProps {
-  children: ReactNode;
-  multiple?: boolean;
+/* ================= Accordion ================= */
+
+export function Accordion({ children }: { children: React.ReactNode }) {
+  return <View style={styles.container}>{children}</View>;
 }
 
-interface AccordionItemProps {
+/* ================= Accordion Item ================= */
+
+export function AccordionItem({
+  title,
+  children,
+}: {
   title: string;
-  children: ReactNode;
-}
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
 
-export const Accordion: React.FC<AccordionProps> = ({ children, multiple = false }) => {
-  return <View>{children}</View>;
-};
-
-export const AccordionItem: React.FC<AccordionItemProps> = ({ title, children }) => {
-  const [expanded, setExpanded] = useState(false);
-  const animation = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
+  const toggle = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    Animated.timing(animation, {
-      toValue: expanded ? 1 : 0,
-      duration: 200,
-      useNativeDriver: false,
-    }).start();
-  }, [expanded]);
+    setOpen(!open);
+  };
 
   return (
     <View style={styles.item}>
-      <TouchableOpacity
-        onPress={() => setExpanded(!expanded)}
-        style={styles.trigger}
-        activeOpacity={0.7}
-      >
-        <Text style={styles.title}>{title}</Text>
-        <Feather
-          name="chevron-down"
-          size={18}
-          style={{
-            transform: [
-              {
-                rotate: animation.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: ["0deg", "180deg"],
-                }),
-              },
-            ],
-          }}
-        />
-      </TouchableOpacity>
-
-      {expanded && <View style={styles.content}>{children}</View>}
+      <AccordionTrigger title={title} open={open} onPress={toggle} />
+      {open && <AccordionContent>{children}</AccordionContent>}
     </View>
   );
-};
+}
+
+/* ================= Trigger ================= */
+
+function AccordionTrigger({
+  title,
+  open,
+  onPress,
+}: {
+  title: string;
+  open: boolean;
+  onPress: () => void;
+}) {
+  return (
+    <TouchableOpacity style={styles.trigger} onPress={onPress}>
+      <Text style={styles.title}>{title}</Text>
+      <Text style={[styles.chevron, open && styles.chevronOpen]}>
+        ▼
+      </Text>
+    </TouchableOpacity>
+  );
+}
+
+/* ================= Content ================= */
+
+function AccordionContent({ children }: { children: React.ReactNode }) {
+  return <View style={styles.content}>{children}</View>;
+}
 
 const styles = StyleSheet.create({
+  container: {
+    width: '100%',
+  },
+
   item: {
     borderBottomWidth: 1,
-    borderBottomColor: "#e5e7eb",
+    borderBottomColor: '#e5e7eb',
   },
+
   trigger: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 16,
   },
+
   title: {
-    fontSize: 16,
-    fontWeight: "500",
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#111827',
   },
+
+  chevron: {
+    fontSize: 14,
+    color: '#6b7280',
+    transform: [{ rotate: '0deg' }],
+  },
+
+  chevronOpen: {
+    transform: [{ rotate: '180deg' }],
+  },
+
   content: {
-    paddingHorizontal: 16,
-    paddingBottom: 12,
+    paddingBottom: 16,
   },
 });

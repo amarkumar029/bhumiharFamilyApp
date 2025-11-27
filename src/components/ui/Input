@@ -1,0 +1,40 @@
+import React, { forwardRef } from 'react';
+import { TextInput, TextInputProps, StyleSheet, View, ViewStyle } from 'react-native';
+
+export interface InputProps extends TextInputProps {
+  containerStyle?: ViewStyle;
+}
+
+const Input = forwardRef<TextInput, InputProps>(({ style, containerStyle, ...props }, ref) => {
+  return (
+    <View style={[styles.container, containerStyle]}>
+      <TextInput
+        ref={ref}
+        style={[styles.input, style]}
+        placeholderTextColor="#9ca3af" // similar to muted-foreground
+        {...props}
+      />
+    </View>
+  );
+});
+
+Input.displayName = 'Input';
+
+export { Input };
+
+const styles = StyleSheet.create({
+  container: {
+    width: '100%',
+  },
+  input: {
+    height: 36, // similar to h-9
+    borderWidth: 1,
+    borderColor: '#d1d5db', // similar to border-input
+    borderRadius: 6, // rounded-md
+    paddingHorizontal: 12, // px-3
+    paddingVertical: 4, // py-1
+    fontSize: 14, // text-sm
+    backgroundColor: 'transparent',
+    color: '#111827', // default text color
+  },
+});
