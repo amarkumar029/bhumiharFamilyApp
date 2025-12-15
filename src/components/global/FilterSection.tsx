@@ -1,5 +1,11 @@
 import React, { useEffect } from "react";
-import { View, Text, ScrollView, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+} from "react-native";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "../../store";
@@ -14,11 +20,18 @@ import {
   clearLocationFilter,
   setProfession,
 } from "../../store/slices/userSlice";
-import { Button } from "../ui/button";
+import { X } from "lucide-react-native";
+
+import {
+  PROFESSIONS,
+  STATES,
+  getCitiesForStates,
+  getLocationsForCities,
+} from "../../constants";
 import MultiSelectCreatable from "./MultiSelectCreatable";
-import DependentSelectComponent from "./DependentSelectComponent";
+import DependentSelectComponent from "./DependentSelect";
 import SelectComponent from "./SelectComponent";
-import { HELP_OPTIONS, PROFESSIONS, STATES, getCitiesForStates, getLocationsForCities } from "../../constants";
+import { HELP_OPTIONS } from "../../constants/help-option";
 
 interface FilterSectionProps {
   type: "helpers" | "seekers";
@@ -34,9 +47,17 @@ interface FilterFormValues {
   profession: string;
 }
 
-const FilterSection: React.FC<FilterSectionProps> = ({ type, isMobile = false, onClose }) => {
+const FilterSection: React.FC<FilterSectionProps> = ({
+  type,
+  isMobile = false,
+  onClose,
+}) => {
   const dispatch = useDispatch();
-  const { keywords, locationFilter, profession } = useSelector((state: RootState) => state.user);
+
+  const { keywords, locationFilter, profession } = useSelector(
+    (state: RootState) => state.user
+  );
+
   const filterKey = type === "helpers" ? "canSeekHelp" : "canHelpOut";
   const selectedFilters = keywords[filterKey] || [];
 
@@ -50,54 +71,105 @@ const FilterSection: React.FC<FilterSectionProps> = ({ type, isMobile = false, o
     },
   });
 
+  /** ---------------- Effects ---------------- */
+
+  useEffect(() => {
+    if (selectedFilters.length > 0) {
+      form.setValue("keywords", selectedFilters);
+    }
+  }, [selectedFilters, form]);
+
+  useEffect(() => {
+    if (
+      selectedFilters.length === 0 &&
+      !profession &&
+      locationFilter.states.length === 0
+    ) {
+      form.reset({
+        keywords: [],
+        state: "",
+        city: "",
+        location: "",
+        profession: "",
+      });
+    }
+  }, [selectedFilters, profession, locationFilter, form]);
+
+  const watchedProfession = form.watch("profession");
   const watchedState = form.watch("state");
   const watchedCity = form.watch("city");
   const watchedLocation = form.watch("location");
-  const watchedProfession = form.watch("profession");
 
   useEffect(() => {
-    if (selectedFilters.length > 0) form.setValue("keywords", selectedFilters);
-  }, [selectedFilters]);
-
-  useEffect(() => {
-    if (watchedProfession !== undefined) dispatch(setProfession(watchedProfession));
-  }, [watchedProfession]);
+    if (watchedProfession !== undefined) {
+      dispatch(setProfession(watchedProfession));
+    }
+  }, [watchedProfession, dispatch]);
 
   useEffect(() => {
     if (watchedState) {
       dispatch(clearLocationFilter());
       dispatch(addState(watchedState));
     }
-  }, [watchedState]);
+  }, [watchedState, dispatch]);
 
   useEffect(() => {
     if (watchedCity) {
       locationFilter.cities.forEach((city) => dispatch(removeCity(city)));
       dispatch(addCity(watchedCity));
     }
-  }, [watchedCity]);
+  }, [watchedCity, dispatch]);
 
   useEffect(() => {
     if (watchedLocation) {
-      locationFilter.locations.forEach((loc) => dispatch(removeLocation(loc)));
+      locationFilter.locations.forEach((loc) =>
+        dispatch(removeLocation(loc))
+      );
       dispatch(addLocation(watchedLocation));
     }
-  }, [watchedLocation]);
+  }, [watchedLocation, dispatch]);
+
+  /** ---------------- Helpers ---------------- */
 
   const onKeywordsChange = (newKeywords: string[]) => {
     dispatch(clearFilters());
-    newKeywords.forEach((keyword) => dispatch(changeFilter({ category: filterKey, keyword })));
+    newKeywords.forEach((keyword) => {
+      dispatch(changeFilter({ category: filterKey, keyword }));
+    });
   };
 
-  const stateOptions = STATES.map((state) => ({ label: state, value: state }));
-  const getCityOptions = (state: string) => getCitiesForStates([state]).map((c) => ({ label: c, value: c }));
-  const getLocationOptions = (city: string) => getLocationsForCities([city]).map((l) => ({ label: l, value: l }));
-  const professionOptions = PROFESSIONS.map((p) => ({ label: p, value: p }));
+  const stateOptions = STATES.map((state) => ({
+    value: state,
+    label: state,
+  }));
+
+  const getCityOptions = (state: string) =>
+    getCitiesForStates([state]).map((city) => ({
+      value: city,
+      label: city,
+    }));
+
+  const getLocationOptions = (city: string) =>
+    getLocationsForCities([city]).map((loc) => ({
+      value: loc,
+      label: loc,
+    }));
+
+  const professionOptions = PROFESSIONS.map((prof) => ({
+    value: prof,
+    label: prof,
+  }));
 
   const handleClearFilters = () => {
     dispatch(clearFilters());
     dispatch(clearLocationFilter());
-    form.reset({ keywords: [], state: "", city: "", location: "", profession: "" });
+    form.reset({
+      keywords: [],
+      state: "",
+      city: "",
+      location: "",
+      profession: "",
+    });
   };
 
   const handleClearLocationFilter = () => {
@@ -107,89 +179,155 @@ const FilterSection: React.FC<FilterSectionProps> = ({ type, isMobile = false, o
     form.setValue("location", "");
   };
 
+  /** ---------------- UI ---------------- */
+
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Filters</Text>
-        {(selectedFilters.length > 0 || profession || locationFilter.states.length > 0) && (
-          <Button onPress={handleClearFilters} style={styles.clearButton} title="Clear all" />
+    <ScrollView
+      style={[styles.container, !isMobile && styles.card]}
+      contentContainerStyle={styles.content}>
+      {/* Header */}
+      <View style={styles.headerRow}>
+        <Text style={styles.header}>Filters</Text>
+
+        {(selectedFilters.length > 0 ||
+          profession ||
+          locationFilter.states.length > 0) && (
+          <TouchableOpacity
+            style={styles.clearBtn}
+            onPress={handleClearFilters}>
+            <X size={16} color="#DC2626" />
+            <Text style={styles.clearText}>Clear all</Text>
+          </TouchableOpacity>
         )}
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.label}>Keywords</Text>
-        <MultiSelectCreatable
-          control={form.control}
-          name="keywords"
-          options={HELP_OPTIONS}
-          placeholder="Search keywords..."
-          onChange={onKeywordsChange}
-        />
+      {/* Keywords */}
+      <Text style={styles.label}>Keywords</Text>
+      <MultiSelectCreatable
+        control={form.control}
+        name="keywords"
+        options={HELP_OPTIONS}
+        placeholder="Search keywords..."
+        onChange={onKeywordsChange}
+      />
+
+      {/* Location */}
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>Location</Text>
+
+        {(locationFilter.states.length > 0 ||
+          locationFilter.cities.length > 0 ||
+          locationFilter.locations.length > 0) && (
+          <TouchableOpacity onPress={handleClearLocationFilter}>
+            <Text style={styles.clearText}>Clear locations</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
-      <View style={styles.section}>
-        <View style={styles.subHeader}>
-          <Text style={styles.subTitle}>Location</Text>
-          {(locationFilter.states.length > 0 ||
-            locationFilter.cities.length > 0 ||
-            locationFilter.locations.length > 0) && (
-            <Button onPress={handleClearLocationFilter} style={styles.clearButton} title="Clear locations" />
-          )}
-        </View>
+      <DependentSelectComponent
+        control={form.control}
+        parentName="state"
+        childName="city"
+        parentOptions={stateOptions}
+        childOptionsMap={Object.fromEntries(
+          STATES.map((state) => [state, getCityOptions(state)])
+        )}
+        parentLabel="State"
+        childLabel="City"
+        parentPlaceholder="Select state"
+        childPlaceholder="Select city"
+      />
 
-        <DependentSelectComponent
-          control={form.control}
-          parentName="state"
-          childName="city"
-          parentOptions={stateOptions}
-          childOptionsMap={Object.fromEntries(STATES.map((s) => [s, getCityOptions(s)]))}
-          parentLabel="State"
-          childLabel="City"
-          parentPlaceholder="Select state..."
-          childPlaceholder="Select city..."
-        />
-
-        {watchedCity ? (
-          <SelectComponent
-            control={form.control}
-            name="location"
-            options={getLocationOptions(watchedCity)}
-            label="Street / Mohalla"
-            placeholder="Select location..."
-          />
-        ) : null}
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.label}>Profession</Text>
+      {watchedCity ? (
         <SelectComponent
           control={form.control}
-          name="profession"
-          options={professionOptions}
-          placeholder="Select profession..."
+          name="location"
+          options={getLocationOptions(watchedCity)}
+          label="Street / Mohalla"
+          placeholder="Select location"
         />
-      </View>
+      ) : null}
 
+      {/* Profession */}
+      <Text style={styles.label}>Profession</Text>
+      <SelectComponent
+        control={form.control}
+        name="profession"
+        options={professionOptions}
+        placeholder="Select profession"
+      />
+
+      {/* Mobile Apply */}
       {isMobile && onClose && (
-        <Button onPress={onClose} style={styles.applyButton} title="Apply Filters" />
+        <TouchableOpacity style={styles.applyBtn} onPress={onClose}>
+          <Text style={styles.applyText}>Apply Filters</Text>
+        </TouchableOpacity>
       )}
     </ScrollView>
   );
 };
 
-export default FilterSection;
-
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    padding: 16,
+    backgroundColor: "#FFFFFF",
   },
-  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 16 },
-  title: { fontSize: 18, fontWeight: "600" },
-  clearButton: { backgroundColor: "#fef2f2", color: "#b91c1c" },
-  section: { marginBottom: 24 },
-  label: { fontSize: 14, fontWeight: "500", marginBottom: 8 },
-  subHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 8 },
-  subTitle: { fontSize: 16, fontWeight: "600" },
-  applyButton: { backgroundColor: "#2563eb", color: "#fff", padding: 12, borderRadius: 6 },
+  card: {
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    borderRadius: 6,
+  },
+  content: {
+    padding: 16,
+    gap: 14,
+  },
+  headerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  header: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#111827",
+  },
+  clearBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  clearText: {
+    color: "#DC2626",
+    fontSize: 14,
+    marginLeft: 4,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#374151",
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 8,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#111827",
+  },
+  applyBtn: {
+    marginTop: 16,
+    backgroundColor: "#2563EB",
+    paddingVertical: 12,
+    borderRadius: 6,
+    alignItems: "center",
+  },
+  applyText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "600",
+  },
 });
+
+export default FilterSection;

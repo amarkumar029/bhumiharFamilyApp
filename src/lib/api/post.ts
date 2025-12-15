@@ -1,5 +1,5 @@
 // postApi.ts
-import { ApiResponse, CreatePostData, Post, PostCommentReplies } from "@/types";
+import { ApiResponse, CreatePostData, Post, PostCommentReplies } from "../../types";
 import { api } from "../axios"; // same axios instance but configured for RN
 
 export const postApi = {

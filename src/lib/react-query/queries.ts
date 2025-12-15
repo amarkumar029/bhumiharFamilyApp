@@ -6,7 +6,7 @@ import dashboardApi from "../api/dashboard";
 import communityApi from "../api/community";
 import matrimonialApi from "../api/matrimonial";
 import { QUERY_KEY } from "./queryKey";
-import { SearchFilters } from "@/types/matrimonial";
+import { SearchFilters } from "../../types/matrimonial";
 
 /*************************************** */
 /*******POST RELATED QUERIES************ */
@@ -158,12 +158,13 @@ export const useGetCheckOutList = () =>
     staleTime: 5 * 60 * 1000,
   });
 
-export const useGetNotInterestedUsers = () =>
-  useQuery({
-    queryKey: [QUERY_KEY.GET_NOT_INTERESTED_USERS],
-    queryFn: communityApi.getNotInterestedUsers,
-    staleTime: 5 * 60 * 1000,
-  });
+  export const useGetNotInterestedUsers = () => {
+    return useQuery({
+      queryKey: [QUERY_KEY.GET_NOT_INTERESTED_USERS],
+      queryFn: communityApi.getNotInterestedUsers,
+      staleTime: 5 * 60 * 1000,
+    });
+  };
 
 /*************************************** */
 /*******MATRIMONIAL QUERIES************ */

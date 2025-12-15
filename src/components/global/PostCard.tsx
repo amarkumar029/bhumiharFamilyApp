@@ -18,9 +18,9 @@ import {
   ChevronUp,
 } from "lucide-react-native"
 import { useSelector } from "react-redux"
-import { RootState } from "@/store"
-import { API_BASE_URL } from "@/constants"
-import { Post } from "@/types"
+import { RootState } from "../../store"
+import { API_BASE_URL } from "../../constants"
+import { Post } from "../../types"
 import ProfileImage from "./ProfileImage"
 import { useNavigation } from "@react-navigation/native"
 

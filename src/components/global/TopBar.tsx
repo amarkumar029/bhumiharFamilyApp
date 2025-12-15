@@ -7,7 +7,7 @@ import {
   Modal,
   ScrollView,
 } from "react-native";
-import Ionicons from "react-native-vector-icons/Ionicons";
+import { Ionicons } from "react-native-vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { logout } from "../../store/slices/authSlice";
@@ -38,18 +38,45 @@ export default function Topbar() {
   const route = useRoute();
   const { user } = useSelector((state: RootState) => state.auth);
 
+  const getIcon = (screen: string) => {
+    const map: Record<string, string> = {
+      Home: "home-outline",
+      Dashboard: "speedometer-outline",
+
+      Post: "share-social-outline",
+
+      CommunityHome: "people-outline",
+      Seekers: "person-outline",
+      Helpers: "people-circle-outline",
+
+      MatrimonialHome: "heart-outline",
+      Search: "search-outline",
+      SentInterest: "send-outline",
+
+      ChatHome: "chatbox-outline",
+    };
+
+    return map[screen] || "grid-outline";
+  };
+
   return (
     <View style={styles.topbar}>
       <Text style={styles.title}>Bhumihar Family</Text>
-
-      <TouchableOpacity onPress={() => setOpen(true)}>
+      <TouchableOpacity onPress={() => {
+        setOpen(true);
+      }}>
         <Ionicons name="menu-outline" size={26} />
-      </TouchableOpacity>
+      </TouchableOpacity>  
 
       {/* Drawer Modal */}
-      <Modal visible={open} animationType="slide" transparent>
+      <Modal
+        visible={open}
+        animationType="slide"
+        transparent
+        statusBarTranslucent   // ✅ VERY IMPORTANT FOR ANDROID
+      >
         <View style={styles.overlay}>
-          <View style={styles.drawer}>
+          <View style={styles.drawer}>            
             {/* Profile */}
             <TouchableOpacity
               style={styles.profile}
@@ -77,26 +104,26 @@ export default function Topbar() {
                   <Text style={styles.sectionLabel}>
                     {section.label}
                   </Text>
-
                   {section.children.map((item) => {
-                    const isActive = route.name === item.path;
-                    const isNew = newItems.includes(item.path);
+                    const isActive = route.name === item.screen;
+                    const isNew = newItems.includes(item.screen);
 
                     return (
                       <TouchableOpacity
-                        key={item.path}
+                        key={item.screen}
                         style={[
                           styles.navItem,
                           isActive && styles.activeNav,
                         ]}
                         onPress={() => {
                           setOpen(false);
-                          navigation.navigate(item.path);
+                          navigation.navigate(item.screen);
                         }}
                       >
                         <Ionicons
-                          name={getIcon(item.path)}
+                          name={getIcon(item.screen)}
                           size={18}
+                          color="#111"
                         />
                         <Text style={styles.navText}>
                           {item.item}
@@ -144,9 +171,12 @@ export default function Topbar() {
 
 const styles = StyleSheet.create({
   topbar: {
-    height: 56,
+    // marginTop: 50,
+    // height: 56,
     backgroundColor: "#fff",
     paddingHorizontal: 16,
+    paddingTop: 40,
+    paddingBottom: 10,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -159,12 +189,16 @@ const styles = StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.4)",
-    flexDirection: "row-reverse",
+    flexDirection: "row",
+    justifyContent: "flex-end", // ✅ RIGHT SIDE
   },
+
   drawer: {
     width: 300,
+    // height: "100%",            // ✅ FULL HEIGHT
     backgroundColor: "#fff",
     padding: 16,
+    paddingTop: 35,
   },
   profile: {
     flexDirection: "row",

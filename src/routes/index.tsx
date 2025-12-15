@@ -8,7 +8,7 @@ import Signup from "../screens/signup/SignupPage";
 import ForgetPassword from "../screens/forget-password/ForgotPasswordPage";
 
 import Home from "../screens/home";
-import Dashboard from "../screens/dashboard/DashboardHome";
+import Dashboard from "../screens/dashboard";
 import Social from "../screens/social";
 import Post from "../screens/post";
 

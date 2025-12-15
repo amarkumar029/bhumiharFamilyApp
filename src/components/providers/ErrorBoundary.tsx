@@ -1,30 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, Button } from 'react-native';
 
-export class ErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false, error: null };
+const ErrorBoundary = ({ children }) => {
+  const [hasError, setHasError] = useState(false);
+
+  if (hasError) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text style={{ color: 'red', fontSize: 18 }}>
+          Something went wrong.
+        </Text>
+        <Button title="Reload App" onPress={() => setHasError(false)} />
+      </View>
+    );
   }
 
-  static getDerivedStateFromError(error) {
-    return { hasError: true, error };
-  }
+  return children;
+};
 
-  componentDidCatch(error, info) {
-    console.log('ErrorBoundary:', error, info);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <Text style={{ color: 'red', fontSize: 18 }}>Something went wrong.</Text>
-          <Button title="Reload App" onPress={() => this.setState({ hasError: false })} />
-        </View>
-      );
-    }
-
-    return this.props.children;
-  }
-}
+export default ErrorBoundary;

@@ -6,8 +6,8 @@ import {
   ActivityIndicator,
   FlatList,
 } from "react-native";
-import { useGetSentInterests } from "@/lib/react-query/queries";
-import { useWithdrawInterest } from "@/lib/react-query/mutation";
+import { useGetSentInterests } from "../../lib/react-query/queries";
+import { useWithdrawInterest } from "../../lib/react-query/mutation";
 import SentInterestCard from "./SentInterestCard";
 
 const PAGE_SIZE = 8;

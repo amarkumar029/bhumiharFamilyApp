@@ -7,7 +7,7 @@ import { store, persistor } from '../../store';
 import ReactQueryProvider from '../../provider/ReactQueryProvider';
 
 import { ErrorBoundary } from './ErrorBoundary';
-import { LoadingSpinner } from '../loading-spinner';
+import { LoadingSpinner } from '../LoadingSpinner';
 
 export function AppProvider({ children }) {
   return (

@@ -1,10 +1,10 @@
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { RootState } from "@/store";
-import { setCredentials, setError, logout } from "@/store/slices/authSlice";
-import { api } from "@/lib/axios";
-import { LoginCredentials, SignupCredentials } from "@/types/auth";
+import { RootState } from "../store";
+import { setCredentials, setError, logout } from "../store/slices/authSlice";
+import { api } from "../lib/axios";
+import { LoginCredentials, SignupCredentials } from "../types/auth";
 import Toast from "react-native-toast-message";
 
 export const useAuth = () => {

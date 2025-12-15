@@ -14,14 +14,14 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Picker } from "@react-native-picker/picker"
 import * as z from "zod"
 
-import { LANGUAGES, SKILLS } from "@/constants"
-import { useUpdatePersonalDetails } from "@/lib/react-query/mutation"
+import { LANGUAGES, SKILLS } from "../../constants"
+import { useUpdatePersonalDetails } from "../../lib/react-query/mutation"
 import { useDispatch } from "react-redux"
-import { updateCredential } from "@/store/slices/authSlice"
+import { updateCredential } from "../../store/slices/authSlice"
 
-import MultiSelectCreatable from "./MultiSelectCreatable.native"
-import LocationSelector from "./LocationSelector.native"
-import ProfileImageUpload from "./ProfileImageUpload.native"
+import MultiSelectCreatable from "./MultiSelectCreatable"
+import LocationSelector from "./LocationSelector"
+import ProfileImageUpload from "./ProfileImageUpload"
 
 const formSchema = z.object({
   fullName: z.string().min(2),

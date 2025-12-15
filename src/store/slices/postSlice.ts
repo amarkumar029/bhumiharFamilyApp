@@ -1,4 +1,4 @@
-import { Post } from "@/types"; // Make sure '@/types' is ported
+import { Post } from "../../types"; // Make sure '@/types' is ported
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface IProp {

@@ -10,9 +10,9 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { formatDistanceToNow } from "date-fns";
-import { useGetRandomPosts } from "@/lib/react-query/queries";
+import { useGetRandomPosts } from "../../lib/react-query/queries";
 import ProfileImage from "../global/ProfileImage";
-import { API_BASE_URL } from "@/constants";
+import { API_BASE_URL } from "../../constants";
 
 export default function RandomPostCard() {
   const navigation = useNavigation();
@@ -108,7 +108,6 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: "#fff",
     padding: 12,
-    margin: 12,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: "#e5e5e5",
@@ -117,6 +116,10 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "600",
     marginBottom: 10,
+    paddingBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#e5e7eb",
+    alignItems: "center",
   },
   noPost: {
     textAlign: "center",

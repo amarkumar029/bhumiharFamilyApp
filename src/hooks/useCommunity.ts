@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../store";
 import { api } from "../lib/axios";
 import { ApiResponse, IUsers } from "../types";
-import debounce from "lodash/debounce";
+import debounce from "lodash";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import {
@@ -31,7 +31,7 @@ interface IResponse {
 const RETRY_COUNT = 3;
 const RETRY_DELAY = 1000;
 
-export const useCommunityUsers = (type: "helpers" | "seekers") => {
+export const useCommunityUser = (type: "helpers" | "seekers") => {
   const dispatch = useDispatch();
 
   const [hasMore, setHasMore] = useState(true);

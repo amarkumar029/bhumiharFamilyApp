@@ -1,11 +1,11 @@
 import axios from "axios";
-import { API_BASE_URL } from "@/constants";
+import { API_BASE_URL } from "../../constants";
 import {
   IActiveChat,
   IChatMessages,
   ICreatedMessage,
-} from "@/types/chat";
-import { ApiResponse } from "@/types";
+} from "../../types/chat";
+import { ApiResponse } from "../../types";
 
 // Create Axios Instance
 const api = axios.create({

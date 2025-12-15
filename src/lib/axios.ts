@@ -1,21 +1,11 @@
 import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API_BASE_URL, STORAGE_KEYS } from "../constants";
+import { navigationRef } from "../navigation/NavigationService";
 
 export const api = axios.create({
-  baseURL: "https://your-api-url.com", // change to your backend
-  timeout: 10000,
+  baseURL: `${API_BASE_URL}/api`,
   headers: {
     "Content-Type": "application/json",
   },
-});
-
-// Optional: Add token interceptor for RN
-api.interceptors.request.use(async (config) => {
-  try {
-    const token = ""; // later replace with AsyncStorage value
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-  } catch (e) {}
-
-  return config;
 });

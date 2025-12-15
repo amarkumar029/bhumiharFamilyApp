@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   button: {
-    backgroundColor: '#1d4ed8', // Example blue color, adjust as per your theme
+    backgroundColor: '#ff5c00', // Example blue color, adjust as per your theme
     paddingVertical: 12,
     borderRadius: 6,
     alignItems: 'center',

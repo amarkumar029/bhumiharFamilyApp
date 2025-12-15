@@ -1,12 +1,20 @@
-import { MatrimonialProfile } from '@/hooks/useMatrimonial'; // Make sure the path and type are ported
+import { MatrimonialProfile } from '../../hooks/useMatrimonial';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-// Interface Definitions are 100% reusable
+// NOTE: चूंकि आपने useMatrimonial hook प्रदान नहीं किया,
+// यहां MatrimonialProfile का एक अनुमानित इंटरफ़ेस (Interface) है।
+export interface MatrimonialProfile {
+  id: string;
+  name: string;
+  age: number;
+  // अन्य आवश्यक फ़ील्ड
+}
+
 interface PartnerPreferences {
-  ageRange?: [number, number];
-  heightRange?: [number, number];
+  ageRange?: [number, number]; // [minAge, maxAge]
+  heightRange?: [number, number]; // [minHeightCm, maxHeightCm]
   education?: string;
-  income?: [number, number];
+  income?: [number, number]; // [minIncome, maxIncome]
   location?: string;
   occupation?: string;
   religion?: string;
@@ -32,30 +40,24 @@ const profileSlice = createSlice({
   name: 'profile',
   initialState,
   reducers: {
-    // Current profiles को नए array से बदलता है
     setProfiles(state, action: PayloadAction<MatrimonialProfile[]>) {
       state.profile = action.payload;
     },
-    // मौजूदा profiles array के अंत में नए profiles जोड़ता है (Pagination/Lazy Loading के लिए)
     appendProfiles(state, action: PayloadAction<MatrimonialProfile[]>) {
-      state.profile = [...state.profile, ...action.payload];
+      state.profile.push(...action.payload); // Array spread की जगह push का उपयोग करें
     },
-    // Partner Preferences object को सेट करता है
     setPartnerPreferences(state, action: PayloadAction<PartnerPreferences>) {
       state.partnerPreferences = action.payload;
     },
-    // Loading state को मैनेज करता है
     setLoading(state, action: PayloadAction<boolean>) {
       state.loading = action.payload;
     },
-    // Error state को मैनेज करता है
     setError(state, action: PayloadAction<string | null>) {
       state.error = action.payload;
     },
   },
 });
 
-// Action Creators and Reducer Export are 100% reusable
 export const {
   setProfiles,
   appendProfiles,
@@ -64,4 +66,7 @@ export const {
   setError,
 } = profileSlice.actions;
 
+export const selectProfiles = (state: RootState) => state.profile.profile;
+export const selectPreferences = (state: RootState) => state.profile.partnerPreferences;
+// Note: RootState type store.ts में परिभाषित है
 export default profileSlice.reducer;

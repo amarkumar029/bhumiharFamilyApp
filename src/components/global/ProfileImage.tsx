@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, Image, StyleSheet } from "react-native";
-import { API_BASE_URL } from "@/constants";
-import { getUserInitials } from "@/utils";
+import { API_BASE_URL } from "../../constants";
+import { getUserInitials } from "../../utils";
 
 interface ProfileImageProps {
   fullName: string;

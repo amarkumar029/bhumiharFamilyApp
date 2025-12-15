@@ -1,8 +1,8 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, SafeAreaView, Platform, KeyboardAvoidingView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-// import { LoginForm } from './LoginFormNative';
-import LoginFormNative from './LoginFormNative';
+// import { LoginForm } from './LoginForm';
+import LoginForm from './LoginForm';
 // Note: LoginForm will also need to be converted to React Native
 
 // 仮の値 (Temporary values, these should come from your constants file)
@@ -38,11 +38,20 @@ export default function LoginPage() {
               <View style={styles.rightSection}>
                 <View style={styles.formCard}>
                   
-                  <LoginFormNative />
+                  <LoginForm />
 
                   {/* Forgot Password Link */}
                   <TouchableOpacity
                     onPress={() => navigation.navigate('ForgetPassword')}
+                    style={styles.forgotPasswordContainer}
+                  >
+                    <Text style={styles.forgotPasswordText}>
+                      Forgotten password?
+                    </Text>
+                  </TouchableOpacity>
+
+                <TouchableOpacity
+                    onPress={() => navigation.navigate('Onboarding')}
                     style={styles.forgotPasswordContainer}
                   >
                     <Text style={styles.forgotPasswordText}>

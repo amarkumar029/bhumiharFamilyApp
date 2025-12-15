@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 // Native Storage को इम्पोर्ट करें, जिसे आपने store.ts में उपयोग किया था
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
-import { AuthState, AuthResponse } from '@/types/auth'; // मान लें कि types पोर्ट हो चुके हैं
+import { AuthState, AuthResponse } from '../../types/auth'; // मान लें कि types पोर्ट हो चुके हैं
 
 const initialState: AuthState = {
   user: null,

@@ -7,6 +7,7 @@ import {
   FlatList,
   Modal,
   StyleSheet,
+  Pressable,
 } from "react-native"
 import { Controller, Control } from "react-hook-form"
 import { X, Plus } from "lucide-react-native"
@@ -19,61 +20,63 @@ interface Props {
   onChange?: (values: string[]) => void
 }
 
-/* ---------- Custom filtering logic ---------- */
-const filterOptions = (options: string[], search: string) => {
-  if (!search) return []
+/* ---------- ✅ SAFE filtering logic ---------- */
+const filterOptions = (options: unknown[], search: string) => {
+  if (!search?.trim()) return []
 
   const query = search.toLowerCase()
-  const startsFirst: string[] = []
-  const startsOther: string[] = []
-  const contains: string[] = []
 
-  options.forEach((opt) => {
-    const lower = opt.toLowerCase()
-    const words = lower.split(" ")
-
-    if (words[0].startsWith(query)) startsFirst.push(opt)
-    else if (words.some((w, i) => i > 0 && w.startsWith(query)))
-      startsOther.push(opt)
-    else if (lower.includes(query)) contains.push(opt)
-  })
-
-  return [...startsFirst, ...startsOther, ...contains].slice(0, 10)
+  return (options ?? [])
+    .filter(
+      (opt): opt is string =>
+        typeof opt === "string" &&
+        opt.toLowerCase().includes(query)
+    )
+    .slice(0, 10)
 }
 
-/* ---------- Component ---------- */
+/* ---------- ✅ Component ---------- */
 const MultiSelectCreatable = ({
   control,
   name,
-  options,
+  options = [], // ✅ default
   placeholder,
   onChange,
 }: Props) => {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState("")
 
+  const filteredOptions = useMemo(
+    () => filterOptions(options, search),
+    [options, search]
+  )
+
   return (
     <Controller
       name={name}
       control={control}
-      render={({ field: { value = [], onChange: fieldChange } }) => {
-        const filtered = useMemo(
-          () => filterOptions(options, search),
-          [options, search]
-        )
+      defaultValue={[]} // ✅ MUST
+      render={({ field }) => {
+        const value: string[] = Array.isArray(field.value)
+          ? field.value
+          : []
 
-        const addValue = (val: string) => {
-          if (!val || value.includes(val)) return
-          const updated = [...value, val]
-          fieldChange(updated)
+        const addValue = (val: unknown) => {
+          if (typeof val !== "string") return
+          const cleanVal = val.trim()
+          if (!cleanVal || value.includes(cleanVal)) return
+
+          const updated = [...value, cleanVal]
+          field.onChange(updated)
           onChange?.(updated)
+
           setSearch("")
           setOpen(false)
         }
 
         const removeValue = (val: string) => {
-          const updated = value.filter((v: string) => v !== val)
-          fieldChange(updated)
+          const updated = value.filter((v) => v !== val)
+          field.onChange(updated)
           onChange?.(updated)
         }
 
@@ -92,8 +95,8 @@ const MultiSelectCreatable = ({
 
             {/* Chips */}
             <View style={styles.chips}>
-              {value.map((item: string) => (
-                <View key={item} style={styles.chip}>
+              {value.map((item, index) => (
+                <View key={`${item}-${index}`} style={styles.chip}>
                   <Text style={styles.chipText}>{item}</Text>
                   <TouchableOpacity onPress={() => removeValue(item)}>
                     <X size={14} color="#555" />
@@ -104,12 +107,8 @@ const MultiSelectCreatable = ({
 
             {/* Modal */}
             <Modal visible={open} transparent animationType="fade">
-              <TouchableOpacity
-                style={styles.overlay}
-                activeOpacity={1}
-                onPress={() => setOpen(false)}
-              >
-                <View style={styles.modal}>
+              <Pressable style={styles.overlay} onPress={() => setOpen(false)}>
+                <Pressable style={styles.modal}>
                   <TextInput
                     value={search}
                     onChangeText={setSearch}
@@ -118,24 +117,25 @@ const MultiSelectCreatable = ({
                     autoFocus
                   />
 
-                  {/* Create new */}
-                  {search.length > 0 && !options.includes(search) && (
-                    <TouchableOpacity
-                      style={styles.option}
-                      onPress={() => addValue(search)}
-                    >
-                      <Plus size={16} />
-                      <Text style={styles.optionText}>
-                        Create "{search}"
-                      </Text>
-                    </TouchableOpacity>
-                  )}
+                  {/* ✅ Create new */}
+                  {search.trim().length > 0 &&
+                    !options?.some((opt) => opt === search) && (
+                      <TouchableOpacity
+                        style={styles.option}
+                        onPress={() => addValue(search)}
+                      >
+                        <Plus size={16} />
+                        <Text style={styles.optionText}>
+                          Create "{search}"
+                        </Text>
+                      </TouchableOpacity>
+                    )}
 
-                  {/* Options */}
+                  {/* ✅ Options */}
                   <FlatList
                     keyboardShouldPersistTaps="handled"
-                    data={filtered}
-                    keyExtractor={(item) => item}
+                    data={filteredOptions}
+                    keyExtractor={(item, index) => `${item}-${index}`}
                     renderItem={({ item }) => (
                       <TouchableOpacity
                         style={styles.option}
@@ -145,8 +145,8 @@ const MultiSelectCreatable = ({
                       </TouchableOpacity>
                     )}
                   />
-                </View>
-              </TouchableOpacity>
+                </Pressable>
+              </Pressable>
             </Modal>
           </View>
         )
@@ -159,64 +159,71 @@ const styles = StyleSheet.create({
   input: {
     borderWidth: 1,
     borderColor: "#d1d5db",
-    borderRadius: 6,
-    padding: 12,
+    borderRadius: 10,
+    paddingVertical: 14,
+    paddingHorizontal: 12,
     backgroundColor: "#fff",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  placeholder: {
-    color: "#9ca3af",
-  },
-  text: {
-    color: "#111827",
-  },
-  chips: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-    marginTop: 10,
-  },
+  placeholder: { color: "#9ca3af", fontSize: 14 },
+  text: { color: "#111827", fontSize: 14, fontWeight: "500" },
+  chips: { flexDirection: "row", flexWrap: "wrap", marginTop: 10, gap: 8 },
   chip: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#f3f4f6",
-    paddingHorizontal: 10,
+    backgroundColor: "#eef2ff",
+    paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 16,
+    borderRadius: 20,
   },
   chipText: {
-    marginRight: 6,
     fontSize: 13,
+    color: "#1e3a8a",
+    marginRight: 6,
+    fontWeight: "500",
   },
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.25)",
+    backgroundColor: "rgba(0,0,0,0.35)",
     justifyContent: "center",
-    padding: 20,
+    paddingHorizontal: 16,
   },
   modal: {
     backgroundColor: "#fff",
-    borderRadius: 12,
+    borderRadius: 14,
     maxHeight: "70%",
-    padding: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 14,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    elevation: 8,
   },
   search: {
     borderWidth: 1,
-    borderColor: "#d1d5db",
-    borderRadius: 8,
-    padding: 10,
+    borderColor: "#e5e7eb",
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    fontSize: 14,
+    backgroundColor: "#f9fafb",
     marginBottom: 8,
   },
   option: {
     flexDirection: "row",
+    alignItems: "center",
     gap: 8,
     paddingVertical: 12,
     paddingHorizontal: 10,
     borderBottomWidth: 1,
-    borderBottomColor: "#eee",
+    borderBottomColor: "#f1f5f9",
   },
-  optionText: {
-    fontSize: 14,
-  },
+  optionText: { fontSize: 14, color: "#111827" },
 })
 
 export default MultiSelectCreatable

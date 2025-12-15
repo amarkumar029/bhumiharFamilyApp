@@ -1,4 +1,4 @@
-import React, { useState, forwardRef, ReactNode } from 'react';
+import React, { useState, forwardRef } from "react"
 import {
   View,
   Text,
@@ -6,139 +6,144 @@ import {
   TouchableOpacity,
   FlatList,
   StyleSheet,
-  ViewStyle,
-  TextStyle,
-} from 'react-native';
+  Pressable,
+} from "react-native"
 
-interface SelectProps {
-  children: ReactNode[];
-  value?: string;
-  placeholder?: string;
-  style?: ViewStyle;
-  textStyle?: TextStyle;
-  onValueChange?: (value: string) => void;
+interface Option {
+  label: string
+  value: string
 }
 
-const Select = forwardRef<any, SelectProps>(
-  ({ children, value, placeholder = 'Select...', style, textStyle, onValueChange }, ref) => {
-    const [open, setOpen] = useState(false);
+interface SelectProps {
+  value?: string
+  placeholder?: string
+  options: Option[]
+  onValueChange?: (value: string) => void
+}
 
-    const selectedChild = children.find((child: any) => child.props.value === value);
+const Select = forwardRef<View, SelectProps>(
+  ({ value, placeholder = "Select...", options, onValueChange }, ref) => {
+    const [open, setOpen] = useState(false)
+
+    const selectedOption = options.find(
+      (opt) => opt.value === value
+    )
 
     const handleSelect = (val: string) => {
-      onValueChange?.(val);
-      setOpen(false);
-    };
+      onValueChange?.(val)
+      setOpen(false)
+    }
 
     return (
       <View ref={ref}>
+        {/* Trigger */}
         <TouchableOpacity
-          style={[styles.trigger, style]}
+          style={styles.trigger}
           onPress={() => setOpen(true)}
+          activeOpacity={0.8}
         >
-          <Text style={[styles.triggerText, textStyle]}>
-            {selectedChild ? selectedChild.props.children : placeholder}
+          <Text style={styles.triggerText}>
+            {selectedOption?.label ?? placeholder}
           </Text>
           <Text style={styles.caret}>▼</Text>
         </TouchableOpacity>
 
-        <Modal visible={open} transparent animationType="fade">
-          <TouchableOpacity
-            style={styles.modalOverlay}
-            activeOpacity={1}
+        {/* Modal */}
+        <Modal
+          visible={open}
+          transparent
+          animationType="fade"
+          statusBarTranslucent   // ✅ Android fix
+        >
+          {/* ✅ Overlay */}
+          <Pressable
+            style={styles.overlay}
             onPress={() => setOpen(false)}
           >
-            <View style={styles.modalContent}>
+            {/* ✅ STOP PRESS BUBBLING */}
+            <Pressable
+              style={styles.modal}
+              onPress={() => {}}
+            >
               <FlatList
-                data={children}
-                keyExtractor={(item: any, index) => index.toString()}
-                renderItem={({ item }: { item: any }) => (
+                data={options}
+                keyExtractor={(item) => item.value}
+                renderItem={({ item }) => (
                   <TouchableOpacity
                     style={[
                       styles.item,
-                      item.props.value === value && styles.selectedItem,
+                      item.value === value && styles.selectedItem,
                     ]}
-                    onPress={() => handleSelect(item.props.value)}
+                    onPress={() => handleSelect(item.value)}
                   >
                     <Text
                       style={[
                         styles.itemText,
-                        item.props.value === value && styles.selectedItemText,
+                        item.value === value &&
+                          styles.selectedItemText,
                       ]}
                     >
-                      {item.props.children}
+                      {item.label}
                     </Text>
                   </TouchableOpacity>
                 )}
               />
-            </View>
-          </TouchableOpacity>
+            </Pressable>
+          </Pressable>
         </Modal>
       </View>
-    );
+    )
   }
-);
+)
 
-Select.displayName = 'Select';
+Select.displayName = "Select"
+export { Select }
 
-interface SelectItemProps {
-  value: string;
-  children: ReactNode;
-}
-
-const SelectItem = ({ value, children }: SelectItemProps) => {
-  return <>{children}</>; // Rendered inside FlatList in Select
-};
-
-SelectItem.displayName = 'SelectItem';
-
+/* ---------- Styles ---------- */
 const styles = StyleSheet.create({
   trigger: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    height: 36,
-    paddingHorizontal: 12,
+    height: 52,
     borderWidth: 1,
-    borderColor: '#d1d5db',
-    borderRadius: 6,
-    backgroundColor: '#fff',
+    borderColor: "#d1d5db",
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    backgroundColor: "#fff",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   triggerText: {
     fontSize: 14,
-    color: '#111827',
+    color: "#111827",
   },
   caret: {
     fontSize: 12,
-    color: '#6b7280',
+    color: "#6b7280",
   },
-  modalOverlay: {
+  overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.1)',
-    justifyContent: 'center',
-    paddingHorizontal: 32,
+    backgroundColor: "rgba(0,0,0,0.3)",
+    justifyContent: "center",
+    padding: 24,
   },
-  modalContent: {
-    backgroundColor: '#fff',
-    borderRadius: 6,
-    maxHeight: 300,
-    paddingVertical: 8,
+  modal: {
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    maxHeight: "60%",
   },
   item: {
-    paddingVertical: 10,
+    paddingVertical: 14,
     paddingHorizontal: 16,
   },
   selectedItem: {
-    backgroundColor: '#e0f2fe',
+    backgroundColor: "#e0f2fe",
   },
   itemText: {
     fontSize: 14,
-    color: '#111827',
+    color: "#111827",
   },
   selectedItemText: {
-    fontWeight: '600',
-    color: '#0c4a6e',
+    fontWeight: "600",
+    color: "#0369a1",
   },
-});
-
-export { Select, SelectItem };
+})

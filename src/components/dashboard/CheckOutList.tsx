@@ -1,3 +1,4 @@
+// CheckOutList.tsx (React Native)
 import React, { useEffect } from "react";
 import {
   View,
@@ -6,25 +7,23 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
-
-import { NotebookTabs, Send, X } from "lucide-react-native";
+import Ionicons from "react-native-vector-icons/Ionicons";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store";
 import { setCheckoutList } from "../../store/slices/userSlice";
-import { useNavigation } from "@react-navigation/native";
 import communityApi from "../../lib/api/community";
-
-import ProfileImage from "../../global/ProfileImage";
-import { useUserActions } from "../../hooks/useUserAction";
+import ProfileImage from "../global/ProfileImage";
+import { useUserAction } from "../../hooks/useUserAction";
+import { useNavigation } from "@react-navigation/native";
 
 export default function CheckOutList() {
   const dispatch = useDispatch();
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
+  const { removeFromCheckoutList } = useUserAction();
+
   const checkoutList = useSelector(
     (state: RootState) => state.user.checkoutList
   );
-
-  const { removeFromCheckoutList } = useUserActions();
 
   useEffect(() => {
     const fetchCheckoutList = async () => {
@@ -32,74 +31,81 @@ export default function CheckOutList() {
         const users = await communityApi.getCheckoutList();
         dispatch(setCheckoutList(users));
       } catch (error) {
-        console.error("Error fetching checkout list:", error);
+        console.log("Checkout list error:", error);
       }
     };
-
     fetchCheckoutList();
-  }, []);
+  }, [dispatch]);
 
   return (
     <View style={styles.card}>
       {/* Header */}
       <View style={styles.header}>
-        <NotebookTabs color="#3b82f6" size={20} />
-        <Text style={styles.title}>Checkout List ({checkoutList.length})</Text>
+        <Ionicons name="list-outline" size={18} color="#2563eb" />
+        <Text style={styles.title}>
+          Checkout List ({checkoutList.length})
+        </Text>
       </View>
 
       {/* Content */}
-      <ScrollView style={styles.content}>
-        {checkoutList.length === 0 ? (
-          <View style={styles.center}>
-            <Text style={styles.emptyText}>No users in checkout list</Text>
-          </View>
-        ) : (
-          checkoutList.map((user) => (
-            <View key={user.id} style={styles.userCard}>
-              {/* User Profile Navigation */}
+      {checkoutList.length === 0 ? (
+        <View style={styles.emptyBox}>
+          <Text style={styles.emptyText}>
+            No users in checkout list
+          </Text>
+        </View>
+      ) : (
+        <ScrollView style={styles.list}>
+          {checkoutList.map((user: any) => (
+            <View key={user.id} style={styles.item}>
+              {/* Profile */}
               <TouchableOpacity
-                style={styles.userInfo}
+                style={styles.profileRow}
                 onPress={() =>
-                  navigation.navigate("ProfilePage", { id: user.id })
+                  navigation.navigate("ProfilePage", {
+                    id: user.id,
+                  })
                 }
               >
                 <ProfileImage
                   fullName={user.fullName}
                   image={user.image}
-                  showAction
                   size="sm"
                 />
 
-                <View style={styles.userDetails}>
-                  <Text style={styles.typeText}>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.helperText}>
                     {user.checkOutType === "helpers"
                       ? "Ask help from"
                       : "Reach out to help"}
                   </Text>
-
-                  <Text style={styles.nameText}>{user.fullName}</Text>
+                  <Text style={styles.name}>
+                    {user.fullName}
+                  </Text>
                 </View>
               </TouchableOpacity>
 
-              {/* Buttons */}
-              <View style={styles.btnGroup}>
-                {/* Message Button */}
+              {/* Actions */}
+              <View style={styles.actions}>
                 <TouchableOpacity
-                  style={[styles.btn, styles.msgBtn]}
+                  style={styles.messageBtn}
                   onPress={() =>
                     navigation.navigate("NewChat", {
-                      id: user.id,
+                      userId: user.id,
                       userName: user.fullName,
                     })
                   }
                 >
-                  <Send size={16} color="#fff" />
+                  <Ionicons
+                    name="send-outline"
+                    size={14}
+                    color="#fff"
+                  />
                   <Text style={styles.btnText}>Message</Text>
                 </TouchableOpacity>
 
-                {/* Remove Button */}
                 <TouchableOpacity
-                  style={[styles.btn, styles.removeBtn]}
+                  style={styles.removeBtn}
                   onPress={() =>
                     removeFromCheckoutList(
                       user.id,
@@ -108,117 +114,105 @@ export default function CheckOutList() {
                     )
                   }
                 >
-                  <X size={16} color="#fff" />
+                  <Ionicons
+                    name="close-outline"
+                    size={14}
+                    color="#fff"
+                  />
                   <Text style={styles.btnText}>Remove</Text>
                 </TouchableOpacity>
               </View>
             </View>
-          ))
-        )}
-      </ScrollView>
+          ))}
+        </ScrollView>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
+    marginBottom: 15,
     backgroundColor: "#fff",
-    borderRadius: 8,
-    padding: 10,
-    minHeight: 300,
-    elevation: 2,
     borderWidth: 1,
     borderColor: "#e5e7eb",
+    borderRadius: 6,
+    flex: 1,
   },
-
   header: {
     flexDirection: "row",
-    paddingBottom: 8,
-    borderBottomWidth: 1,
-    borderColor: "#f3f4f6",
     alignItems: "center",
+    gap: 8,
+    padding: 12,
+    borderBottomWidth: 1,
+    borderColor: "#e5e7eb",
   },
-
   title: {
-    fontSize: 16,
-    marginLeft: 8,
     fontWeight: "600",
+    fontSize: 14,
     color: "#111827",
   },
-
-  content: {
-    marginTop: 10,
-  },
-
-  center: {
-    height: 200,
+  emptyBox: {
+    flex: 1,
+    alignItems: "center",
     justifyContent: "center",
-    alignItems: "center",
+    padding: 20,
   },
-
   emptyText: {
-    fontSize: 14,
-    color: "#6b7280",
-  },
-
-  userCard: {
-    backgroundColor: "#f9fafb",
-    padding: 10,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: "#e5e7eb",
-    marginBottom: 10,
-  },
-
-  userInfo: {
-    flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
-  },
-
-  userDetails: {
-    marginLeft: 8,
-    flex: 1,
-  },
-
-  typeText: {
     fontSize: 12,
     color: "#6b7280",
   },
-
-  nameText: {
-    fontSize: 14,
+  list: {
+    padding: 10,
+  },
+  item: {
+    backgroundColor: "#f9fafb",
+    borderWidth: 1,
+    borderColor: "#e5e7eb",
+    borderRadius: 6,
+    padding: 10,
+    marginBottom: 10,
+  },
+  profileRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  helperText: {
+    fontSize: 11,
+    color: "#6b7280",
+  },
+  name: {
+    fontSize: 13,
     fontWeight: "600",
     color: "#111827",
   },
-
-  btnGroup: {
+  actions: {
     flexDirection: "row",
+    gap: 8,
     marginTop: 10,
-    justifyContent: "flex-end",
-    gap: 10,
   },
-
-  btn: {
+  messageBtn: {
     flexDirection: "row",
+    gap: 6,
     alignItems: "center",
-    paddingVertical: 6,
+    backgroundColor: "#2563eb",
     paddingHorizontal: 10,
-    borderRadius: 6,
+    paddingVertical: 6,
+    borderRadius: 4,
   },
-
-  msgBtn: {
-    backgroundColor: "#3b82f6",
-  },
-
   removeBtn: {
-    backgroundColor: "#ef4444",
+    flexDirection: "row",
+    gap: 6,
+    alignItems: "center",
+    backgroundColor: "#dc2626",
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 4,
   },
-
   btnText: {
     color: "#fff",
     fontSize: 12,
-    marginLeft: 4,
     fontWeight: "500",
   },
 });

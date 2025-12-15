@@ -148,11 +148,12 @@ const styles = StyleSheet.create({
   navScroll: { flex: 1, paddingVertical: 8 },
   section: { marginBottom: 16, paddingHorizontal: 8 },
   sectionTitle: {
-    fontSize: 12,
+    fontSize: 15,
     fontWeight: "500",
-    color: "#6B7280",
+    color: "#000000",
     marginBottom: 4,
-    textTransform: "uppercase",
+    borderWidth: 1,
+    borderBottomColor: "#888888",
   },
   navItem: {
     flexDirection: "row",

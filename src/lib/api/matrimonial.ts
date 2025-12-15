@@ -1,10 +1,10 @@
-import { ApiResponse } from "@/types";
+import { ApiResponse } from "../../types";
 import { api } from "../axios"; // your axios instance
 import {
   MatrimonialProfile,
   PartnerPreferences,
   SearchFilters,
-} from "@/types/matrimonial";
+} from "../../types/matrimonial";
 
 const matrimonialApi = {
   // Get Recommended Profiles

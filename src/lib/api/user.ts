@@ -1,11 +1,11 @@
-import { ApiResponse, User } from "@/types";
+import { ApiResponse, User } from "../../types";
 import { api } from "../axios"; // same axios instance
 import {
   BasicUserProfile,
   CommunityDetails,
   MatrimonialDetails,
   UserProfile,
-} from "@/types/profile";
+} from "../../types/profile";
 
 interface IGetCounts {
   totalUsers: number;

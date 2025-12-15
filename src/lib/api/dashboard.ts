@@ -1,6 +1,6 @@
-import { ApiResponse } from "@/types";
-import { api } from "../axios"; 
-import { IRandomPost, IRecentChat } from "@/types/post";
+import { ApiResponse } from "../../types";
+import { api } from "../axios";
+import { IRandomPost, IRecentChat } from "../../types/post";
 
 const dashboardApi = {
   getRandomPosts: async (): Promise<IRandomPost[]> => {

@@ -11,26 +11,25 @@ const screenWidth = Dimensions.get("window").width;
 
 export default function Dashboard() {
   return (
-    <ScrollView style={styles.container}>
-      
+    <ScrollView style={styles.container}>      
       {/* TITLE */}
       <Text style={styles.title}>Welcome to your Dashboard</Text>
 
       {/* GRID SYSTEM (Flexbox) */}
       <View style={styles.grid}>
-
+        
         {/* Profile Completion */}
-        <View style={styles.itemSmall}>
+        <View style={styles.itemWide}>
           <ProfileCompletion />
         </View>
 
         {/* CheckOut List */}
-        <View style={styles.itemLarge}>
+        <View style={styles.itemWide}>
           <CheckOutList />
         </View>
 
         {/* Recent Chats */}
-        <View style={styles.itemSmall}>
+        <View style={styles.itemWide}>
           <RecentChats />
         </View>
 
@@ -43,9 +42,7 @@ export default function Dashboard() {
         <View style={styles.itemWide}>
           <NotInterestedUser />
         </View>
-
       </View>
-
     </ScrollView>
   );
 }
@@ -69,7 +66,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
-    gap: 12,
+    // gap: 12,
   },
 
   itemSmall: {

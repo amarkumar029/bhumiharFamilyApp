@@ -3,7 +3,8 @@ import { View, Text, ActivityIndicator, TouchableOpacity, StyleSheet } from "rea
 import { useNavigation } from "@react-navigation/native";
 import { CheckCircle, User, AlertTriangle, Sparkles } from "lucide-react-native";
 import Svg, { Circle } from "react-native-svg";
-import { useGetProfileCompletion } from "../../hooks/useGetProfileCompletion"; // your hook
+// import { useGetProfileCompletion } from "../../hooks/useGetProfileCompletion"; // your hook
+import { useGetProfileCompletion } from "../../lib/react-query/queries"
 
 export default function ProfileCompletion() {
   const { data, isPending } = useGetProfileCompletion();
@@ -116,8 +117,7 @@ export default function ProfileCompletion() {
 
 const styles = StyleSheet.create({
   card: {
-    margin: 12,
-    padding: 16,
+    marginBottom: 15,
     backgroundColor: "white",
     borderRadius: 10,
     borderWidth: 1,
@@ -128,7 +128,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    marginBottom: 16,
+    fontSize: 18,
+    fontWeight: "600",
+    marginBottom: 10,
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#e5e7eb",
   },
   title: {
     fontSize: 16,
@@ -142,7 +147,7 @@ const styles = StyleSheet.create({
   },
   content: {
     alignItems: "center",
-    paddingVertical: 10,
+    padding: 15,
   },
   centerText: {
     position: "absolute",

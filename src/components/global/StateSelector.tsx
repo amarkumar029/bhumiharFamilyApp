@@ -7,8 +7,8 @@ import {
   Modal,
   FlatList,
 } from "react-native";
-import { LOCATIONS } from "@/constants/locations";
-import { LocationsData } from "@/types/location";
+import { LOCATIONS } from "../../constants/locations";
+import { LocationsData } from "../../types/location";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
 interface StateSelectorProps {

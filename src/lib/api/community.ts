@@ -1,5 +1,9 @@
-import { api } from "@/lib/axios"; // Your RN axios instance
-import { ApiResponse, IUsers } from "@/types";
+import { api } from "../axios"; // ✅ RN-friendly relative path
+import { ApiResponse, IUsers } from "../../types";
+
+/* ===================== */
+/* TYPES */
+/* ===================== */
 
 export interface Pagination {
   total: number;
@@ -18,8 +22,8 @@ export interface ICheckOutList {
   specializedDegree: string | null;
 }
 
-export interface isNotInterestedUser extends ICheckOutList {
-  type: string;
+export interface INotInterestedUser extends ICheckOutList {
+  type: "helpers" | "seekers";
   _id: string;
 }
 
@@ -49,8 +53,12 @@ export interface CommunityUsersParams {
   excludeUsers?: string[];
 }
 
+/* ===================== */
+/* API METHODS */
+/* ===================== */
+
 const communityApi = {
-  // ✅ Fetch Users with Filters
+  /* -------- USERS LIST -------- */
   getUsers: async ({
     type,
     keywords,
@@ -68,9 +76,9 @@ const communityApi = {
 
     if (
       locationFilter &&
-      (locationFilter.states.length > 0 ||
-        locationFilter.cities.length > 0 ||
-        locationFilter.locations.length > 0)
+      (locationFilter.states.length ||
+        locationFilter.cities.length ||
+        locationFilter.locations.length)
     ) {
       params.locationFilter = JSON.stringify(locationFilter);
     }
@@ -91,7 +99,7 @@ const communityApi = {
     return response.data.data;
   },
 
-  // ✅ Filters: Seek Help / Help Out
+  /* -------- FILTERS -------- */
   getFilters: async (): Promise<Keywords> => {
     const response = await api.get<
       ApiResponse<{
@@ -103,36 +111,24 @@ const communityApi = {
     return response.data.data;
   },
 
-  // ✅ Add to Checkout List
+  /* -------- CHECKOUT LIST -------- */
   addToCheckoutList: async (targetUserId: string): Promise<boolean> => {
     const response = await api.post<ApiResponse<{ success: boolean }>>(
       "/community/checkout-list",
       { targetUserId }
     );
 
-    return response.data.data.success;
+    return response.data.success;
   },
 
-  // ✅ Remove from Checkout List
   removeFromCheckoutList: async (userId: string): Promise<boolean> => {
     const response = await api.delete<ApiResponse<{ success: boolean }>>(
       `/community/checkout-list/${userId}`
     );
 
-    return response.data.data.success;
+    return response.data.success;
   },
 
-  // ✅ Mark as Not Interested
-  markAsNotInterested: async (targetUserId: string): Promise<boolean> => {
-    const response = await api.post<ApiResponse<{ success: boolean }>>(
-      "/community/not-interested",
-      { targetUserId }
-    );
-
-    return response.data.data.success;
-  },
-
-  // ✅ Fetch Checkout List
   getCheckoutList: async (): Promise<IUsers[]> => {
     const response = await api.get<ApiResponse<{ users: IUsers[] }>>(
       "/community/checkout-list"
@@ -141,22 +137,32 @@ const communityApi = {
     return response.data.data.users;
   },
 
-  // ✅ Fetch Not Interested Users
-  getNotInterestedUsers: async () => {
-    const response = await api.get<
-      ApiResponse<{ users: isNotInterestedUser[] }>
-    >("/community/not-interested-users");
+  /* -------- NOT INTERESTED -------- */
+  markAsNotInterested: async (targetUserId: string): Promise<boolean> => {
+    const response = await api.post<ApiResponse<{ success: boolean }>>(
+      "/community/not-interested",
+      { targetUserId }
+    );
 
-    return response.data.data.users;
+    return response.data.success;
   },
 
-  // ✅ Remove Not Interested User
-  removeNotInterestedUser: async (interestId: string) => {
+  getNotInterestedUsers: async (): Promise<{
+    users: INotInterestedUser[];
+  }> => {
+    const response = await api.get<
+      ApiResponse<{ users: INotInterestedUser[] }>
+    >("/community/not-interested-users");
+
+    return response.data.data;
+  },
+
+  removeNotInterestedUser: async (interestId: string): Promise<boolean> => {
     const response = await api.delete<ApiResponse<{ success: boolean }>>(
       `/community/remove-not-interested/${interestId}`
     );
 
-    return response.data.data;
+    return response.data.success;
   },
 };
 

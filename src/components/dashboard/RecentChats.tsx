@@ -13,7 +13,6 @@ import { formatDistanceToNow } from "date-fns";
 import { MessageSquare } from "lucide-react-native";
 
 import ProfileImage from "../global/ProfileImage";
-// import { useGetRecentMessages } from "@/lib/react-query/queries";
 import { useGetRecentMessages } from "../../lib/react-query/queries";
 
 export default function RecentChats() {
@@ -86,6 +85,7 @@ export default function RecentChats() {
 
 const styles = StyleSheet.create({
   card: {
+    marginBottom: 15,
     backgroundColor: "#fff",
     borderRadius: 8,
     paddingBottom: 10,

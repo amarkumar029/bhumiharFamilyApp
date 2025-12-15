@@ -8,7 +8,7 @@ import {
 } from "react-native"
 import { SendHorizontal } from "lucide-react-native"
 import { useSelector } from "react-redux"
-import { RootState } from "@/store"
+import { RootState } from "../../store"
 import ProfileImage from "./ProfileImage"
 
 type Props = {

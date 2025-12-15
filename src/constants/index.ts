@@ -1,34 +1,40 @@
-import { INavOptions } from "@/types";
+import { INavOptions } from "../types";
 import { LOCATIONS } from "./locations";
-export const COMMUNITY_NAME = "Bhumihar Family";
+import Config from "react-native-config";
+
+export const COMMUNITY_NAME = Config.COMMUNITY_NAME || "Bhumihar Family";
+
+export const APP_NAME = Config.APP_NAME || "Bhumihar Family";
+
 export const API_BASE_URL =
-import.meta.env.VITE_API_URL || "http://localhost:8000";
-export const APP_NAME = "Bhumihar Family";
-
+  Config.API_BASE_URL || "https://bhumiharfamily.com";
+  // Config.API_BASE_URL || "http://localhost:8000";
+  
 export const ROUTES = {
-  HOME: "/",
-  LOGIN: "/login",
-  SIGNUP: "/signup",
-  FORGET_PASSWORD: "/forget-password",
-  ONBOARDING: "/onboarding",
-  SOCIAL: "/social",
-  PROFILE: "/profile",
-  MATCHES: "/matches",
-  SETTINGS: "/settings",
-  COMMUNITY: "/community",
-  POSTS: "/posts",
-  MATRIMONIAL: "/matrimonial",
-  CHAT: "/chat",
+  HOME: "Home",
+  LOGIN: "Login",
+  SIGNUP: "Signup",
+  FORGET_PASSWORD: "ForgetPassword",
+  ONBOARDING: "Onboarding",
+  SOCIAL: "Social",
+  PROFILE: "Profile",
+  MATCHES: "Matches",
+  SETTINGS: "Settings",
+  COMMUNITY: "Community",
+  POSTS: "Posts",
+  MATRIMONIAL: "Matrimonial",
+  CHAT: "Chat",
 } as const;
 
-export const LOCAL_STORAGE_KEYS = {
-  AUTH_TOKEN: "auth_token",
-  REFRESH_TOKEN: "refresh_token",
-  USER_DATA: "user_data",
-  THEME: "theme",
-  REGISTER_SECRET_KEY: "register_secret_key",
-  FORGET_PASS_SECRET_KEY: "forget_pass_secret_key",
+export const STORAGE_KEYS = {
+  AUTH_TOKEN: "@auth_token",
+  REFRESH_TOKEN: "@refresh_token",
+  USER_DATA: "@user_data",
+  THEME: "@theme",
+  REGISTER_SECRET_KEY: "@register_secret_key",
+  FORGET_PASS_SECRET_KEY: "@forget_pass_secret_key",
 } as const;
+
 
 export const EDUCATION_DEGREES = [
   "B.A",
@@ -525,46 +531,57 @@ export const NATIONALITIES = [
   "Other",
 ];
 
+export interface INavOptions {
+  id: number;
+  label: string;
+  screen: string; // ✅ path nahi, screen
+}
+
 export const NAVIGATION_OPTIONS: INavOptions[] = [
   {
     id: 1,
     label: "Dashboard",
-    path: "/",
+    screen: "Home",
   },
   {
     id: 4,
     label: "Social Media",
-    path: "/posts",
+    screen: "Social",
   },
   {
     id: 2,
     label: "Community",
-    path: "/community",
+    screen: "CommunityRoutes",
   },
   {
     id: 3,
     label: "Matrimonial",
-    path: "/matrimonial",
+    screen: "MatrimonialRoutes",
   },
   {
     id: 5,
     label: "Chat",
-    path: "/chat",
+    screen: "ChatRoutes",
   },
 ];
-interface Navigation {
-  label: string;
-  children: { item: string; path: string }[];
-}
-[];
 
-export const NAVIGATIONS: Navigation[] = [
+interface NavigationItem {
+  item: string;
+  screen: string;
+}
+
+interface NavigationSection {
+  label: string;
+  children: NavigationItem[];
+}
+
+export const NAVIGATIONS: NavigationSection[] = [
   {
     label: "Dashboard",
     children: [
       {
         item: "Home",
-        path: "/",
+        screen: "Home",
       },
     ],
   },
@@ -573,7 +590,7 @@ export const NAVIGATIONS: Navigation[] = [
     children: [
       {
         item: "Posts",
-        path: "/posts",
+        screen: "Post",
       },
     ],
   },
@@ -582,15 +599,15 @@ export const NAVIGATIONS: Navigation[] = [
     children: [
       {
         item: "Home",
-        path: "/community",
+        screen: "CommunityHome",
       },
       {
         item: "Seekers",
-        path: "/community/seekers",
+        screen: "Seekers",
       },
       {
         item: "Helpers",
-        path: "/community/helpers",
+        screen: "Helpers",
       },
     ],
   },
@@ -599,15 +616,15 @@ export const NAVIGATIONS: Navigation[] = [
     children: [
       {
         item: "Matches",
-        path: "/matrimonial",
+        screen: "MatrimonialHome",
       },
       {
         item: "Search",
-        path: "/matrimonial/search",
+        screen: "Search",
       },
       {
-        item: "Sent interests",
-        path: "/matrimonial/sent-interests",
+        item: "Sent Interests",
+        screen: "SentInterest",
       },
     ],
   },
@@ -616,7 +633,7 @@ export const NAVIGATIONS: Navigation[] = [
     children: [
       {
         item: "Inbox",
-        path: "/chat",
+        screen: "ChatHome",
       },
     ],
   },

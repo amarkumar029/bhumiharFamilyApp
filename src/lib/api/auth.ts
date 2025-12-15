@@ -5,7 +5,7 @@ import {
   SignupCredentials,
   AuthResponse,
 } from "../../types/auth";
-import { LOCAL_STORAGE_KEYS } from "../../constants";
+import { STORAGE_KEYS } from "../../constants";
 
 export const authApi = {
   // LOGIN
@@ -36,7 +36,7 @@ export const authApi = {
   ): Promise<{ success: boolean }> => {
     // AsyncStorage instead of localStorage
     const secret = await AsyncStorage.getItem(
-      LOCAL_STORAGE_KEYS.REGISTER_SECRET_KEY
+      STORAGE_KEYS.REGISTER_SECRET_KEY
     );
 
     const { data } = await api.post("/auth/verify-otp", {

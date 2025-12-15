@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { IUsers } from "@/types"; // Make sure '@/types' (and IUsers) is ported
+import { IUsers } from "../../types"; // Make sure '@/types' (and IUsers) is ported
 
 // Interface Definitions are 100% reusable
 export interface Pagination {

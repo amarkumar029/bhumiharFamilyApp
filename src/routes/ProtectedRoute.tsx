@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "../hooks/useAuth";
 import { RootStackParamList } from "../navigation/AppNavigator";
 
 interface ProtectedRouteProps {

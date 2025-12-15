@@ -2,12 +2,22 @@ import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, StyleSheet } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { LOCATIONS } from "../../constants/locations";
-import { LocationSelectorProps, LocationsData } from "../../types/location";
+import { LocationSelectorProps } from "../../types/location";
 
-const LocationSelector: React.FC<LocationSelectorProps> = ({ value, onChange }) => {
-  const [selectedState, setSelectedState] = useState(value?.state || "");
-  const [selectedCity, setSelectedCity] = useState(value?.city || "");
-  const [selectedMohalla, setSelectedMohalla] = useState(value?.mohalla || "");
+const EMPTY_LOCATION = {
+  state: "",
+  city: "",
+  mohalla: "",
+};
+
+const LocationSelector: React.FC<LocationSelectorProps> = ({
+  value = EMPTY_LOCATION,
+  onChange,
+}) => {
+  /* -------------------- LOCAL STATE -------------------- */
+  const [selectedState, setSelectedState] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
+  const [selectedMohalla, setSelectedMohalla] = useState("");
 
   const [customState, setCustomState] = useState("");
   const [customCity, setCustomCity] = useState("");
@@ -16,165 +26,235 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({ value, onChange }) 
   const [cities, setCities] = useState<string[]>([]);
   const [mohallas, setMohallas] = useState<string[]>([]);
 
-  const states = ["OTHERS", ...Object.keys(LOCATIONS as LocationsData)];
+  /* -------------------- SAFE LOCATIONS -------------------- */
+  const safeLocations =
+    LOCATIONS && typeof LOCATIONS === "object" ? LOCATIONS : {};
 
+  const states = ["OTHERS", ...Object.keys(safeLocations)];
+
+  /* -------------------- SYNC FROM VALUE -------------------- */
   useEffect(() => {
-    if (!value) return;
+    if (!value.state) {
+      setSelectedState("");
+      setSelectedCity("");
+      setSelectedMohalla("");
+      return;
+    }
 
-    // Handle state
-    if (value.state) {
-      if (states.includes(value.state)) setSelectedState(value.state);
-      else {
-        setSelectedState("OTHERS");
-        setCustomState(value.state);
-      }
+    // ---- STATE ----
+    if (states.includes(value.state)) {
+      setSelectedState(value.state);
+    } else {
+      setSelectedState("OTHERS");
+      setCustomState(value.state);
+    }
 
-      // Handle cities
-      if (value.state !== "OTHERS" && LOCATIONS[value.state]) {
-        const citiesForState = LOCATIONS[value.state];
-        const cityOptions = ["OTHERS", ...Object.keys(citiesForState)];
-        setCities(cityOptions);
+    if (value.state === "OTHERS") return;
 
-        if (value.city) {
-          if (cityOptions.includes(value.city)) setSelectedCity(value.city);
-          else {
-            setSelectedCity("OTHERS");
-            setCustomCity(value.city);
-          }
+    const citiesForState = safeLocations[value.state];
+    if (!citiesForState) return;
 
-          // Handle mohallas
-          if (value.city !== "OTHERS" && citiesForState[value.city]) {
-            const mohallaOptions = ["OTHERS", ...citiesForState[value.city]];
-            setMohallas(mohallaOptions);
+    const cityOptions = ["OTHERS", ...Object.keys(citiesForState)];
+    setCities(cityOptions);
 
-            if (value.mohalla) {
-              if (mohallaOptions.includes(value.mohalla)) setSelectedMohalla(value.mohalla);
-              else {
-                setSelectedMohalla("OTHERS");
-                setCustomMohalla(value.mohalla);
-              }
-            }
-          }
-        }
-      }
+    // ---- CITY ----
+    if (!value.city) return;
+
+    if (cityOptions.includes(value.city)) {
+      setSelectedCity(value.city);
+    } else {
+      setSelectedCity("OTHERS");
+      setCustomCity(value.city);
+    }
+
+    if (value.city === "OTHERS") return;
+
+    const mohallaList = citiesForState[value.city];
+    if (!Array.isArray(mohallaList)) return;
+
+    setMohallas(["OTHERS", ...mohallaList]);
+
+    // ---- MOHALLA ----
+    if (!value.mohalla) return;
+
+    if (mohallaList.includes(value.mohalla)) {
+      setSelectedMohalla(value.mohalla);
+    } else {
+      setSelectedMohalla("OTHERS");
+      setCustomMohalla(value.mohalla);
     }
   }, [value]);
 
+  /* -------------------- HANDLERS -------------------- */
   const handleStateChange = (state: string) => {
     setSelectedState(state);
     setSelectedCity("");
     setSelectedMohalla("");
     setCities([]);
     setMohallas([]);
-    if (state !== "OTHERS") {
-      const citiesForState = LOCATIONS[state];
-      if (citiesForState) setCities(["OTHERS", ...Object.keys(citiesForState)]);
-      onChange({ state, city: "", mohalla: "" });
-    } else setCustomState("");
+
+    onChange({
+      state,
+      city: "",
+      mohalla: "",
+    });
+
+    if (state === "OTHERS") return;
+
+    const citiesForState = safeLocations[state];
+    if (citiesForState) {
+      setCities(["OTHERS", ...Object.keys(citiesForState)]);
+    }
   };
 
   const handleCityChange = (city: string) => {
     setSelectedCity(city);
     setSelectedMohalla("");
     setMohallas([]);
-    if (city !== "OTHERS" && selectedState !== "OTHERS") {
-      const citiesForState = LOCATIONS[selectedState];
-      if (citiesForState && citiesForState[city]) setMohallas(["OTHERS", ...citiesForState[city]]);
-      onChange({ state: selectedState, city, mohalla: "" });
-    } else setCustomCity("");
+
+    onChange({
+      state: selectedState,
+      city,
+      mohalla: "",
+    });
+
+    if (city === "OTHERS") return;
+
+    const citiesForState = safeLocations[selectedState];
+    const mohallaList = citiesForState?.[city];
+
+    if (Array.isArray(mohallaList)) {
+      setMohallas(["OTHERS", ...mohallaList]);
+    }
   };
 
   const handleMohallaChange = (mohalla: string) => {
     setSelectedMohalla(mohalla);
-    if (mohalla !== "OTHERS") onChange({ state: selectedState, city: selectedCity, mohalla });
-    else setCustomMohalla("");
-  };
 
-  const handleCustomChange = () => {
+    if (mohalla === "OTHERS") return;
+
     onChange({
-      state: selectedState === "OTHERS" ? customState : selectedState,
-      city: selectedCity === "OTHERS" ? customCity : selectedCity,
-      mohalla: selectedMohalla === "OTHERS" ? customMohalla : selectedMohalla,
+      state:
+        selectedState === "OTHERS" ? customState : selectedState,
+      city:
+        selectedCity === "OTHERS" ? customCity : selectedCity,
+      mohalla,
     });
   };
 
+  /* -------------------- UI -------------------- */
   return (
-    <View style={styles.container}>
-      {/* State Selector */}
+    <View>
+      {/* ---------- STATE ---------- */}
       <Text style={styles.label}>State</Text>
-      <Picker
-        selectedValue={selectedState}
-        onValueChange={(val) => {
-          handleStateChange(val);
-        }}
-      >
-        {states.map((state) => (
-          <Picker.Item key={state} label={state === "OTHERS" ? "Others" : state} value={state} />
-        ))}
-      </Picker>
+      <View style={styles.pickerWrapper}>
+        <Picker
+          selectedValue={selectedState}
+          onValueChange={handleStateChange}
+        >
+          {states.map((state) => (
+            <Picker.Item
+              key={state}
+              label={state === "OTHERS" ? "Others" : state}
+              value={state}
+            />
+          ))}
+        </Picker>
+      </View>
+
       {selectedState === "OTHERS" && (
         <TextInput
           style={styles.input}
           placeholder="Enter your state"
           value={customState}
-          onChangeText={(text) => {
-            setCustomState(text);
-            handleCustomChange();
-          }}
+          onChangeText={setCustomState}
+          onBlur={() =>
+            onChange({ state: customState, city: "", mohalla: "" })
+          }
         />
       )}
 
-      {/* City Selector */}
-      {selectedState && (
+      {/* ---------- CITY ---------- */}
+      {!!selectedState && (
         <>
           <Text style={styles.label}>City</Text>
-          <Picker
-            selectedValue={selectedCity}
-            onValueChange={(val) => {
-              handleCityChange(val);
-            }}
-          >
-            {(selectedState === "OTHERS" ? ["OTHERS"] : cities).map((city) => (
-              <Picker.Item key={city} label={city === "OTHERS" ? "Others" : city} value={city} />
-            ))}
-          </Picker>
+          <View style={styles.pickerWrapper}>
+            <Picker
+              selectedValue={selectedCity}
+              onValueChange={handleCityChange}
+            >
+              {(selectedState === "OTHERS"
+                ? ["OTHERS"]
+                : cities
+              ).map((city) => (
+                <Picker.Item
+                  key={city}
+                  label={city === "OTHERS" ? "Others" : city}
+                  value={city}
+                />
+              ))}
+            </Picker>
+          </View>
+
           {selectedCity === "OTHERS" && (
             <TextInput
               style={styles.input}
               placeholder="Enter your city"
               value={customCity}
-              onChangeText={(text) => {
-                setCustomCity(text);
-                handleCustomChange();
-              }}
+              onChangeText={setCustomCity}
+              onBlur={() =>
+                onChange({
+                  state: selectedState,
+                  city: customCity,
+                  mohalla: "",
+                })
+              }
             />
           )}
         </>
       )}
 
-      {/* Mohalla Selector */}
-      {selectedState && selectedCity && (
+      {/* ---------- MOHALLA ---------- */}
+      {!!selectedCity && (
         <>
           <Text style={styles.label}>Mohalla / Street</Text>
-          <Picker
-            selectedValue={selectedMohalla}
-            onValueChange={(val) => {
-              handleMohallaChange(val);
-            }}
-          >
-            {(selectedState === "OTHERS" || selectedCity === "OTHERS" ? ["OTHERS"] : mohallas).map((mohalla) => (
-              <Picker.Item key={mohalla} label={mohalla === "OTHERS" ? "Others" : mohalla} value={mohalla} />
-            ))}
-          </Picker>
+          <View style={styles.pickerWrapper}>
+            <Picker
+              selectedValue={selectedMohalla}
+              onValueChange={handleMohallaChange}
+            >
+              {(selectedCity === "OTHERS"
+                ? ["OTHERS"]
+                : mohallas
+              ).map((m) => (
+                <Picker.Item
+                  key={m}
+                  label={m === "OTHERS" ? "Others" : m}
+                  value={m}
+                />
+              ))}
+            </Picker>
+          </View>
+
           {selectedMohalla === "OTHERS" && (
             <TextInput
               style={styles.input}
-              placeholder="Enter your mohalla/street"
+              placeholder="Enter your mohalla / street"
               value={customMohalla}
-              onChangeText={(text) => {
-                setCustomMohalla(text);
-                handleCustomChange();
-              }}
+              onChangeText={setCustomMohalla}
+              onBlur={() =>
+                onChange({
+                  state:
+                    selectedState === "OTHERS"
+                      ? customState
+                      : selectedState,
+                  city:
+                    selectedCity === "OTHERS"
+                      ? customCity
+                      : selectedCity,
+                  mohalla: customMohalla,
+                })
+              }
             />
           )}
         </>
@@ -183,10 +263,8 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({ value, onChange }) 
   );
 };
 
+/* -------------------- STYLES -------------------- */
 const styles = StyleSheet.create({
-  container: {
-    marginVertical: 8,
-  },
   label: {
     fontSize: 14,
     fontWeight: "500",
@@ -194,14 +272,19 @@ const styles = StyleSheet.create({
     color: "#374151",
   },
   input: {
+    height: 45,
     borderWidth: 1,
-    borderColor: "#D1D5DB",
+    borderColor: "#dddddd",
     borderRadius: 6,
     paddingHorizontal: 10,
-    paddingVertical: 6,
     marginBottom: 8,
-    fontSize: 14,
-    color: "#111827",
+  },
+  pickerWrapper: {
+    borderWidth: 1,
+    borderColor: "#d1d5db",
+    borderRadius: 6,
+    marginBottom: 8,
+    overflow: "hidden",
   },
 });
 

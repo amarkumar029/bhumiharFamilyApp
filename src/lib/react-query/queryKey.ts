@@ -1,3 +1,7 @@
+/* ===================== */
+/* QUERY KEYS */
+/* ===================== */
+
 export enum QUERY_KEY {
   GET_ALL_POSTS = "get_all_posts",
   GET_POST_BY_ID = "get_post_by_id",
@@ -18,7 +22,7 @@ export enum QUERY_KEY {
   GET_PROFILE_COMPLETION = "get_profile_completion",
   GET_CHECKOUT_LIST = "get_checkout_list",
 
-  // Matrimonial Keys
+  // Matrimonial
   GET_RECOMMENDED_PROFILES = "get_recommended_profiles",
   GET_MATRIMONIAL_PROFILE = "get_matrimonial_profile",
   GET_RECEIVED_INTERESTS = "get_received_interests",
@@ -29,6 +33,10 @@ export enum QUERY_KEY {
   GET_NOT_INTERESTED_USERS = "get_not_interested_users",
   GET_USER_PROFILE = "get_user_profile",
 }
+
+/* ===================== */
+/* MUTATION KEYS */
+/* ===================== */
 
 export enum MUTATION_KEY {
   CREATE_POST = "create_post",
@@ -45,7 +53,7 @@ export enum MUTATION_KEY {
   DELETE_POST = "delete_post",
   ADD_TO_CHECKOUT_LIST = "add_to_checkout_list",
 
-  // Mutation Keys
+  // Matrimonial Mutations
   SEND_INTEREST = "send_interest",
   RESPOND_TO_INTEREST = "respond_to_interest",
   WITHDRAW_INTEREST = "withdraw_interest",

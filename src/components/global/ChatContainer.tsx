@@ -4,7 +4,7 @@ import { useRoute } from "@react-navigation/native";
 import { useQueryClient } from "@tanstack/react-query";
 
 import ChatHeader from "./ChatHeader";
-import MessageListItem from "./MessageListItem";
+import MessageListItem from "./MessageList";
 import MessageInput from "./MessageInput";
 import { useGetInfiniteMessages } from "../../lib/react-query/queries";
 import { useSendMessage } from "../../lib/react-query/mutation";
